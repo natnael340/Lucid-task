@@ -1,0 +1,36 @@
+version: "3.8"
+
+volumes:
+  db_data: {}
+
+services:
+  app:
+    image: app
+    build: .
+    ports:
+      - "8080:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    networks:
+      - lucid-network
+    command: /bin/bash -c "uvicorn app.main:app --reload"
+
+  db:
+    image: mysql:8.0
+    restart: always
+    env_file: .env
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - lucid-network
+
+networks:
+  lucid-network:
+    ipam:
+      driver: default
